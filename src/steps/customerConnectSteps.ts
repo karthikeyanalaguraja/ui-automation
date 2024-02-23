@@ -1,13 +1,8 @@
 import { Given, Then, When } from '@cucumber/cucumber';
-import CustomerConnectPage from '../pages/customerConnectPage';
-import { pageFixture } from '../hooks/pageFixture';
 import webapp from '../framework/webapp'
 import { Navigation as CustomerConnectNavigation } from '../selectors/customerConnect/Navigation'
 import { Customer as CustomerConnectCustomer } from '../selectors/customerConnect/Customer'
 import { Locator, expect, Browser, BrowserContext, chromium, Page } from '@playwright/test';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-let customerConnectPage: CustomerConnectPage;
 
 let launchChromium: Browser
 let pwcontext: BrowserContext
@@ -20,14 +15,10 @@ export const pwconfig = {
 
 export { launchChromium, pw, pwcontext }
 
+Given('User navigates to the Customer Connect page', { timeout: 100000 }, async () => {
+  await webAppLogin();
+})
 
-Given('User navigates to the Customer Connect page', { timeout: 100000 }, async function () {
-  customerConnectPage = new CustomerConnectPage(pageFixture.page);
-  const CUSTOMER_CONNECT_URL = 'https://customer-connect.qa1-core.aws.converadev.com/';
-  await this.base.goto(CUSTOMER_CONNECT_URL);
-  await this.page.waitForLoadState();
-  await this.page.waitForURL(CUSTOMER_CONNECT_URL);
-});
 
 When('User validates all the navigation link', async function () {
   await webapp.checkIfElementExists({selector: CustomerConnectNavigation.dashboardLink});
@@ -64,7 +55,10 @@ const launchBrowser = async () => {
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const webAppLogin = async () => {
   await launchBrowser()
-  await pw.goto('https://customer-connect.qa1-core.aws.converadev.com/')
+  const CUSTOMER_CONNECT_URL = 'https://customer-connect.qa1-core.aws.converadev.com/';
+  await webapp.waitUntilPageIsLoaded()
+  await pw.goto(CUSTOMER_CONNECT_URL)
+  await pw.waitForLoadState();
+  await pw.waitForURL(CUSTOMER_CONNECT_URL);
   expect(await pw.title()).toBe('Convera Customer Connect')
-
 }
